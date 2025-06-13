@@ -14,6 +14,7 @@ GO
 IF OBJECT_ID('DeleteOrderDetails', 'P') IS NOT NULL DROP PROCEDURE DeleteOrderDetails;
 GO
 
+    --QUESTION 1
 -- Create UpdateOrderDetails procedure
 CREATE PROCEDURE UpdateOrderDetails
     @OrderID INT,
@@ -62,6 +63,7 @@ BEGIN
 END;
 GO
 
+    --QUESTION 2
 -- Create GetOrderDetails procedure
 CREATE PROCEDURE GetOrderDetails
     @OrderID INT
@@ -79,6 +81,7 @@ BEGIN
 END;
 GO
 
+    --QUESTION 3
 -- Create DeleteOrderDetails procedure
 CREATE PROCEDURE DeleteOrderDetails
     @OrderID INT,
@@ -139,6 +142,7 @@ BEGIN
 END;
 GO
 
+    --QUESTION 4
 -- Create UpdateOrderDetails procedure
 CREATE PROCEDURE UpdateOrderDetailss
     @OrderID INT,
