@@ -190,3 +190,73 @@ BEGIN
     WHERE ProductID = @ProductID;
 END;
 GO
+
+    --FUNCTIONS
+-- Create vwCustomerOrders view
+CREATE VIEW vwCustomerOrders
+AS
+SELECT 
+    Name AS CompanyName,
+    SOH.SalesOrderID AS OrderID,
+    SOH.OrderDate,
+    SOD.ProductID,
+    P.Name AS ProductName,
+    SOD.OrderQty AS Quantity,
+    SOD.UnitPrice,
+    SOD.UnitPrice * SOD.OrderQty AS TotalPrice
+FROM 
+    Sales.Customer AS C
+JOIN 
+    Sales.SalesOrderHeader AS SOH ON C.CustomerID = SOH.CustomerID
+JOIN 
+    Sales.SalesOrderDetail AS SOD ON SOH.SalesOrderID = SOD.SalesOrderID
+JOIN 
+    Production.Product AS P ON SOD.ProductID = P.ProductID;
+GO
+
+    --VIEW
+-- Create vwCustomerOrdersYesterday view
+CREATE VIEW vwCustomerOrdersYesterday
+AS
+SELECT * 
+FROM vwCustomerOrders
+WHERE OrderDate = CONVERT(DATE, GETDATE() - 1);
+GO
+
+-- Create MyProducts view
+CREATE VIEW MyProducts
+AS
+SELECT 
+    P.ProductID,
+    P.Name AS ProductName,
+    P.ListPrice AS UnitPrice,
+    V.Name AS CompanyName,
+    PC.Name AS CategoryName
+FROM 
+    Production.Product P
+JOIN 
+    Purchasing.ProductVendor PV ON P.ProductID = PV.ProductID
+JOIN 
+    Purchasing.Vendor V ON PV.BusinessEntityID = V.BusinessEntityID
+JOIN 
+    Production.ProductSubcategory PSC ON P.ProductSubcategoryID = PSC.ProductSubcategoryID
+JOIN 
+    Production.ProductCategory PC ON PSC.ProductCategoryID = PC.ProductCategoryID
+WHERE 
+    P.DiscontinuedDate IS NULL;
+GO
+
+    --TRIGGER
+-- Create trgDeleteOrderDetails trigger
+CREATE TRIGGER trgDeleteOrderDetails
+ON Sales.SalesOrderHeader
+INSTEAD OF DELETE
+AS
+BEGIN
+    DELETE FROM Sales.SalesOrderDetail
+    WHERE SalesOrderID IN (SELECT SalesOrderID FROM deleted);
+    
+    DELETE FROM Sales.SalesOrderHeader
+    WHERE SalesOrderID IN (SELECT SalesOrderID FROM deleted);
+END;
+GO
